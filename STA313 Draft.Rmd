@@ -1,0 +1,189 @@
+---
+title: "STA313 Final"
+author: "Eric Yin"
+date: "`r Sys.Date()`"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+kaggle_raw <- read.csv("US Mass Shooting 1966-2019 (cleaned).csv")
+mj_raw <- read.csv("Mother Jones - Mass Shootings Database, 1982 - 2022 - Sheet1.csv")
+
+##functions
+
+#defined function just to make column splitting easier
+reassign <- function(column, final) {
+  temp <- c()
+  for (i in 1:length(column)){
+     temp <- append(temp, column[[i]][final])
+  }
+  return(temp)
+}
+
+#defined function to change a repeated typo
+change <- function(column, typo, correction){
+  temp <- c()
+  for (i in 1:length(column)){
+    if(identical(column[i],typo)){
+      temp <- append(temp, correction)
+      } else {
+    temp <- append(temp, column[i])
+      }
+  }
+  return(temp)
+}
+
+
+##creating date columns
+
+#create month label
+kaggle_raw <- kaggle_raw %>% mutate(Month = str_split(Date, "/"))
+kaggle_raw$Month <- reassign(kaggle_raw$Month, 1)
+kaggle_raw <- kaggle_raw %>% mutate(Month = as.numeric(Month))
+
+#confirms no weird categories plus sums to total observations
+# kaggle_raw %>% group_by(Month) %>% summarize(n= n())
+# sum((kaggle_raw %>% group_by(Month) %>% summarize(n= n()))$n)
+
+#create year label
+kaggle_raw <- kaggle_raw %>% mutate(Year = str_split(Date, "/"))
+kaggle_raw$Year <- reassign(kaggle_raw$Year, 3)
+kaggle_raw <- kaggle_raw %>% mutate(Year = case_when(Year > 19 ~ paste0("19", as.character(Year)), TRUE ~ paste0("20", as.character(Year)))) %>% mutate(Year = as.numeric(Year))
+
+#confirms no weird categories plus sums to total observations
+# kaggle_raw %>% group_by(Year) %>% summarize(n= n()) %>% arrange(desc(Year)) %>% print(n = 50)
+# sum((kaggle_raw %>% group_by(Year) %>% summarize(n= n()))$n)
+
+#create day label
+kaggle_raw <- kaggle_raw %>% mutate(Day = str_split(Date, "/"))
+kaggle_raw$Day <- reassign(kaggle_raw$Day, 2)
+kaggle_raw <- kaggle_raw %>% mutate(Day = as.numeric(Day))
+
+#confirms no weird categories plus sums to total observations
+# kaggle_raw %>% group_by(Day) %>% summarize(n= n()) %>% arrange(desc(Day)) %>% print(n = 50)
+# sum((kaggle_raw %>% group_by(Day) %>% summarize(n= n()))$n)
+
+## same for mj
+
+#create month label
+mj_raw <- mj_raw %>% mutate(Month = str_split(date, "/"))
+mj_raw$Month <- reassign(mj_raw$Month, 1)
+mj_raw <- mj_raw %>% mutate(Month = as.numeric(Month))
+
+#confirms no weird categories plus sums to total observations
+# mj_raw %>% group_by(Month) %>% summarize(n= n())
+# sum((mj_raw %>% group_by(Month) %>% summarize(n= n()))$n)
+
+#create day label
+mj_raw <- mj_raw %>% mutate(Day = str_split(date, "/"))
+mj_raw$Day <- reassign(mj_raw$Day, 2)
+mj_raw <- mj_raw %>% mutate(Day = as.numeric(Day))
+
+# #confirms no weird categories plus sums to total observations
+# mj_raw %>% group_by(Day) %>% summarize(n= n()) %>% arrange(desc(Day)) %>% print(n = 50)
+# sum((mj_raw %>% group_by(Day) %>% summarize(n= n()))$n)
+
+#this one is duplicated with slightly different locations
+mj_raw <- mj_raw %>% filter(location != "Parkland, Washington")
+
+##merging data
+
+#add columns in from mj
+newnames <- c("MJ.Summary", "Prior.MH", "MH.Details", "Legal.Weapons", "Obtained.Where", "Weapon.Type", "Weapon.Details", "Main.Source", "MH.Source", "Extra.Source", "Shooting.Type")
+
+oldnames <- c("summary", "prior_signs_mental_health_issues", "mental_health_details", "weapons_obtained_legally", "where_obtained", "weapon_type", "weapon_details", "sources", "mental_health_sources", "sources_additional_age", "type")
+
+#select new columns that we need, plus rearrange them
+mj_raw <- mj_raw %>% select(location, year, Month, Day, all_of(oldnames))
+colnames(mj_raw) <- c("Location", "Year", "Month", "Day", newnames)
+
+#join data
+joined_data <- left_join(kaggle_raw, mj_raw, by = c("Location", "Year", "Month", "Day"))
+
+
+#dataset manipulation
+
+#create state variable
+data <- joined_data %>% mutate(State = str_trim(reassign(str_split(joined_data$Location, ", "), 2))) %>% mutate(State = change(State, "CA", "California") %>% change("NV", "Nevada") %>% change("Lousiana", "Louisiana") %>% change("San Diego", "California") %>% change("Souderton", "Pennsylvania")) %>% mutate(State = case_when(is.na(State) ~ "Washington", TRUE ~ State)) 
+
+#check listings
+data %>% group_by(State) %>% summarize(n = n()) %>% arrange(State) %>% print(n = 50)
+
+#confirm no data was lost
+nrow(data)
+sum((data %>% group_by(State) %>% summarize(n = n()))$n)
+
+
+
+```
+
+
+
+=======
+>>>>>>> 0854691191c674c4fadfd78a363bd4ca22eb560b
+=======
+>>>>>>> 0854691191c674c4fadfd78a363bd4ca22eb560b
+=======
+>>>>>>> 0854691191c674c4fadfd78a363bd4ca22eb560b
+This R Markdown document is made interactive using Shiny. Unlike the more traditional workflow of creating static reports, you can now create documents that allow your readers to change the assumptions underlying your analysis and see the results immediately. 
+
+Hi
+
+To learn more, see [Interactive Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
+
+## Inputs and Outputs
+
+You can embed Shiny inputs and outputs in your document. Outputs are automatically updated whenever inputs change.  This demonstrates how a standard R plot can be made interactive by wrapping it in the Shiny `renderPlot` function. The `selectInput` and `sliderInput` functions create the input widgets used to drive the plot.
+
+```{r eruptions, echo=FALSE}
+inputPanel(
+  selectInput("n_breaks", label = "Number of bins:",
+              choices = c(10, 20, 35, 50), selected = 20),
+  
+  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
+              min = 0.2, max = 2, value = 1, step = 0.2)
+)
+
+renderPlot({
+  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
+       xlab = "Duration (minutes)", main = "Geyser eruption duration")
+  
+  dens <- density(faithful$eruptions, adjust = input$bw_adjust)
+  lines(dens, col = "blue")
+})
+```
+
+## Embedded Application
+
+It's also possible to embed an entire Shiny application within an R Markdown document using the `shinyAppDir` function. This example embeds a Shiny application located in another directory:
+
+```{r tabsets, echo=FALSE}
+shinyAppDir(
+  system.file("examples/06_tabsets", package = "shiny"),
+  options = list(
+    width = "100%", height = 550
+  )
+)
+```
+
+Note the use of the `height` parameter to determine how much vertical space the embedded application should occupy.
+
+You can also use the `shinyApp` function to define an application inline rather then in an external directory.
+
+In all of R code chunks above the `echo = FALSE` attribute is used. This is to prevent the R code within the chunk from rendering in the document alongside the Shiny components.
+
+
+
