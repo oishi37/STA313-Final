@@ -11,8 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 <<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 ```{r}
 library(tidyverse)
 ```
@@ -134,10 +133,7 @@ sum((data %>% group_by(State) %>% summarize(n = n()))$n)
 
 =======
 >>>>>>> 0854691191c674c4fadfd78a363bd4ca22eb560b
-=======
->>>>>>> 0854691191c674c4fadfd78a363bd4ca22eb560b
-=======
->>>>>>> 0854691191c674c4fadfd78a363bd4ca22eb560b
+
 This R Markdown document is made interactive using Shiny. Unlike the more traditional workflow of creating static reports, you can now create documents that allow your readers to change the assumptions underlying your analysis and see the results immediately. 
 
 Hi
