@@ -55,22 +55,13 @@ temp_data %>% mutate(Year <- as.numeric(Year)) %>%
 ui <- fluidPage(
   # App title ----
   titlePanel("Us mass shooting"),
-  
-  dashboardPage(
-  dashboardHeader(),
-  dashboardSidebar(),
-  dashboardBody(
-    setBackgroundImage(
-      src = "https://images.app.goo.gl/9guKSEKPKBJcZh1p7",
-      shinydashboard = TRUE
-    ),
     sidebarLayout(
     
     # Sidebar panel for inputs ----
     sidebarPanel(
       
       # Input: Slider for the number of bins ----
-      sliderInput(inputId = "bins",
+      sliderInput(inputId = "dates",
                   label = "Dates:",
                   min = 1966,
                   max = 2019,
@@ -80,23 +71,21 @@ ui <- fluidPage(
                  choices = as.character(unique(data$State)), 
                  selected = "Nevada",
                  multiple = TRUE)
-    )
+    ),
+    selectInput(inputId = "type",
+                  label = "Selection: ",
+                  list("Victims", "Dead", "Injured"),
+                  selected = "Dead")
   ),
   mainPanel(
       
       # Output: Histogram ----
       plotOutput(outputId = "distPlot")
     )
-  ),
-    
-    # Main panel for displaying outputs ----
-    
-  )
 )
 ```
 ```{r eruptions, echo=FALSE}
 
-# Define server logic required to draw a histogram ----
 server <- function(input, output, session) {
   
   # Histogram of the Old Faithful Geyser Data ----
@@ -107,18 +96,15 @@ server <- function(input, output, session) {
   # 1. It is "reactive" and therefore should be automatically
   #    re-executed when inputs (input$bins) change
   # 2. Its output type is a plot
-  output$distPlot <- renderPlot({
+  output$lineplot <- renderPlot({
+    x    <- input$dates
+    y    <- input$type
     
-    x    <- temp_data$Year
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-    
-    temp_data %>% mutate(Year <- as.numeric(Year)) %>% 
-       group_by(Year) %>% 
-       summarise(count = n()) %>% 
-       ggplot(aes(x = Year, y = count,  group=1)) + 
-       geom_line(stat = "identity", breaks= bins)
-    
-  })
+    temp_data %>% group_by (Year, y) %>% 
+           summarise(count = n()) %>% 
+        ggplot(aes(x = x, y = y,  group=1)) + 
+        geom_line(stat = "identity")
+    })
   
   output$outSelectize <- renderPrint({
         input$state
