@@ -10,6 +10,130 @@ runtime: shiny
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+<<<<<<< HEAD
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+kaggle_raw <- read.csv("US Mass Shooting 1966-2019 (cleaned).csv")
+mj_raw <- read.csv("Mother Jones - Mass Shootings Database, 1982 - 2022 - Sheet1.csv")
+
+##functions
+
+#defined function just to make column splitting easier
+reassign <- function(column, final) {
+  temp <- c()
+  for (i in 1:length(column)){
+     temp <- append(temp, column[[i]][final])
+  }
+  return(temp)
+}
+
+#defined function to change a repeated typo
+change <- function(column, typo, correction){
+  temp <- c()
+  for (i in 1:length(column)){
+    if(identical(column[i],typo)){
+      temp <- append(temp, correction)
+      } else {
+    temp <- append(temp, column[i])
+      }
+  }
+  return(temp)
+}
+
+
+##creating date columns
+
+#create month label
+kaggle_raw <- kaggle_raw %>% mutate(Month = str_split(Date, "/"))
+kaggle_raw$Month <- reassign(kaggle_raw$Month, 1)
+kaggle_raw <- kaggle_raw %>% mutate(Month = as.numeric(Month))
+
+#confirms no weird categories plus sums to total observations
+# kaggle_raw %>% group_by(Month) %>% summarize(n= n())
+# sum((kaggle_raw %>% group_by(Month) %>% summarize(n= n()))$n)
+
+#create year label
+kaggle_raw <- kaggle_raw %>% mutate(Year = str_split(Date, "/"))
+kaggle_raw$Year <- reassign(kaggle_raw$Year, 3)
+kaggle_raw <- kaggle_raw %>% mutate(Year = case_when(Year > 19 ~ paste0("19", as.character(Year)), TRUE ~ paste0("20", as.character(Year)))) %>% mutate(Year = as.numeric(Year))
+
+#confirms no weird categories plus sums to total observations
+# kaggle_raw %>% group_by(Year) %>% summarize(n= n()) %>% arrange(desc(Year)) %>% print(n = 50)
+# sum((kaggle_raw %>% group_by(Year) %>% summarize(n= n()))$n)
+
+#create day label
+kaggle_raw <- kaggle_raw %>% mutate(Day = str_split(Date, "/"))
+kaggle_raw$Day <- reassign(kaggle_raw$Day, 2)
+kaggle_raw <- kaggle_raw %>% mutate(Day = as.numeric(Day))
+
+#confirms no weird categories plus sums to total observations
+# kaggle_raw %>% group_by(Day) %>% summarize(n= n()) %>% arrange(desc(Day)) %>% print(n = 50)
+# sum((kaggle_raw %>% group_by(Day) %>% summarize(n= n()))$n)
+
+## same for mj
+
+#create month label
+mj_raw <- mj_raw %>% mutate(Month = str_split(date, "/"))
+mj_raw$Month <- reassign(mj_raw$Month, 1)
+mj_raw <- mj_raw %>% mutate(Month = as.numeric(Month))
+
+#confirms no weird categories plus sums to total observations
+# mj_raw %>% group_by(Month) %>% summarize(n= n())
+# sum((mj_raw %>% group_by(Month) %>% summarize(n= n()))$n)
+
+#create day label
+mj_raw <- mj_raw %>% mutate(Day = str_split(date, "/"))
+mj_raw$Day <- reassign(mj_raw$Day, 2)
+mj_raw <- mj_raw %>% mutate(Day = as.numeric(Day))
+
+# #confirms no weird categories plus sums to total observations
+# mj_raw %>% group_by(Day) %>% summarize(n= n()) %>% arrange(desc(Day)) %>% print(n = 50)
+# sum((mj_raw %>% group_by(Day) %>% summarize(n= n()))$n)
+
+#this one is duplicated with slightly different locations
+mj_raw <- mj_raw %>% filter(location != "Parkland, Washington")
+
+##merging data
+
+#add columns in from mj
+newnames <- c("MJ.Summary", "Prior.MH", "MH.Details", "Legal.Weapons", "Obtained.Where", "Weapon.Type", "Weapon.Details", "Main.Source", "MH.Source", "Extra.Source", "Shooting.Type")
+
+oldnames <- c("summary", "prior_signs_mental_health_issues", "mental_health_details", "weapons_obtained_legally", "where_obtained", "weapon_type", "weapon_details", "sources", "mental_health_sources", "sources_additional_age", "type")
+
+#select new columns that we need, plus rearrange them
+mj_raw <- mj_raw %>% select(location, year, Month, Day, all_of(oldnames))
+colnames(mj_raw) <- c("Location", "Year", "Month", "Day", newnames)
+
+#join data
+joined_data <- left_join(kaggle_raw, mj_raw, by = c("Location", "Year", "Month", "Day"))
+
+
+#dataset manipulation
+
+#create state variable
+data <- joined_data %>% mutate(State = str_trim(reassign(str_split(joined_data$Location, ", "), 2))) %>% mutate(State = change(State, "CA", "California") %>% change("NV", "Nevada") %>% change("Lousiana", "Louisiana") %>% change("San Diego", "California") %>% change("Souderton", "Pennsylvania")) %>% mutate(State = case_when(is.na(State) ~ "Washington", TRUE ~ State)) 
+
+#check listings
+data %>% group_by(State) %>% summarize(n = n()) %>% arrange(State) %>% print(n = 50)
+
+#confirm no data was lost
+nrow(data)
+sum((data %>% group_by(State) %>% summarize(n = n()))$n)
+
+
+
+```
+
+
+
+=======
+>>>>>>> 0854691191c674c4fadfd78a363bd4ca22eb560b
+
 This R Markdown document is made interactive using Shiny. Unlike the more traditional workflow of creating static reports, you can now create documents that allow your readers to change the assumptions underlying your analysis and see the results immediately. 
 
 Hi
