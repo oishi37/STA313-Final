@@ -56,8 +56,15 @@ ui <- fluidPage(
   # App title ----
   titlePanel("Us mass shooting"),
   
-  # Sidebar layout with input and output definitions ----
-  sidebarLayout(
+  dashboardPage(
+  dashboardHeader(),
+  dashboardSidebar(),
+  dashboardBody(
+    setBackgroundImage(
+      src = "https://images.app.goo.gl/9guKSEKPKBJcZh1p7",
+      shinydashboard = TRUE
+    ),
+    sidebarLayout(
     
     # Sidebar panel for inputs ----
     sidebarPanel(
@@ -65,28 +72,32 @@ ui <- fluidPage(
       # Input: Slider for the number of bins ----
       sliderInput(inputId = "bins",
                   label = "Dates:",
-                  min = as.Date("1966-01-01","%Y-%m-%d"),
-                  max = as.Date("2019-12-31","%Y-%m-%d"),
-                  value=as.Date("2016-12-01"),timeFormat="%Y-%m-%d"),
+                  min = 1966,
+                  max = 2019,
+                  value=2016),
       
       selectInput(inputId = "state", label = "State:", 
                  choices = as.character(unique(data$State)), 
-                 selected = "Nevada")
-    ),
-    
-    # Main panel for displaying outputs ----
-    mainPanel(
+                 selected = "Nevada",
+                 multiple = TRUE)
+    )
+  ),
+  mainPanel(
       
       # Output: Histogram ----
       plotOutput(outputId = "distPlot")
     )
+  ),
+    
+    # Main panel for displaying outputs ----
+    
   )
 )
 ```
 ```{r eruptions, echo=FALSE}
 
 # Define server logic required to draw a histogram ----
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   # Histogram of the Old Faithful Geyser Data ----
   # with requested number of bins
@@ -105,12 +116,17 @@ server <- function(input, output) {
        group_by(Year) %>% 
        summarise(count = n()) %>% 
        ggplot(aes(x = Year, y = count,  group=1)) + 
-       geom_line(stat = "identity")
+       geom_line(stat = "identity", breaks= bins)
     
   })
   
-  output$state_selector = renderUI({})
+  output$outSelectize <- renderPrint({
+        input$state
+    })
   
+  
+   
+
 }
 ```
 
