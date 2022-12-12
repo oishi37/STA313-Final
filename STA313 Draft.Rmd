@@ -10,7 +10,6 @@ runtime: shiny
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-<<<<<<< HEAD
 
 ```{r}
 library(tidyverse)
@@ -106,7 +105,7 @@ newnames <- c("MJ.Summary", "Prior.MH", "MH.Details", "Legal.Weapons", "Obtained
 oldnames <- c("summary", "prior_signs_mental_health_issues", "mental_health_details", "weapons_obtained_legally", "where_obtained", "weapon_type", "weapon_details", "sources", "mental_health_sources", "sources_additional_age", "type")
 
 #select new columns that we need, plus rearrange them
-mj_raw <- mj_raw %>% select(location, year, Month, Day, all_of(oldnames))
+mj_raw <- mj_raw %>% dplyr::select(location, year, Month, Day, all_of(oldnames))
 colnames(mj_raw) <- c("Location", "Year", "Month", "Day", newnames)
 
 #join data
@@ -116,23 +115,94 @@ joined_data <- left_join(kaggle_raw, mj_raw, by = c("Location", "Year", "Month",
 #dataset manipulation
 
 #create state variable
-data <- joined_data %>% mutate(State = str_trim(reassign(str_split(joined_data$Location, ", "), 2))) %>% mutate(State = change(State, "CA", "California") %>% change("NV", "Nevada") %>% change("Lousiana", "Louisiana") %>% change("San Diego", "California") %>% change("Souderton", "Pennsylvania")) %>% mutate(State = case_when(is.na(State) ~ "Washington", TRUE ~ State)) 
+data <- joined_data %>% mutate(State = str_trim(reassign(str_split(joined_data$Location, ", "), 2))) %>% mutate(State = change(State, "CA", "California") %>% change("NV", "Nevada") %>% change("Lousiana", "Louisiana") %>% change("San Diego", "California") %>% change("Souderton", "Pennsylvania")) %>% mutate(State = case_when(is.na(State) ~ "Washington", TRUE ~ State))
 
 #check listings
-data %>% group_by(State) %>% summarize(n = n()) %>% arrange(State) %>% print(n = 50)
+# data %>% group_by(State) %>% summarize(n = n()) %>% arrange(State) %>% print(n = 50)
 
 #confirm no data was lost
-nrow(data)
-sum((data %>% group_by(State) %>% summarize(n = n()))$n)
+# nrow(data)
+# sum((data %>% group_by(State) %>% summarize(n = n()))$n)
 
-
+write.csv(data,file='STA313_Final_Project/finaldata_313.csv', row.names=FALSE)
 
 ```
 
 
+```{r}
+class(data$Year)
 
-=======
->>>>>>> 0854691191c674c4fadfd78a363bd4ca22eb560b
+max = 2019
+min = 1966
+response = "Fatalities"
+
+temp <- data %>% filter(Year < max) %>% filter(Year > min)
+
+x <- colnames(temp)
+match("Fatalities", x)
+
+
+
+args <- list(temp$Year, temp$Fatalities)
+
+do.call(group_by, args)
+
+as.name(response)
+eval(as.name(response))
+eval(as.name(paste0("temp$", as.name(response))))
+
+product <- temp %>% group_by(Year, get(response)) %>% 
+  summarise(count = n()) %>% 
+  ggplot(aes(x = Year, y = eval(as.name(response)))) + geom_line() +
+      labs(title= paste0("Timeline of ", response, " in the US"),
+           x = "Year", 
+           y = paste0("Number of ", response)) + theme_classic()
+
+product
+```
+
+# CODE FOR GGPLOT
+```{r}
+# this is for incidents by year
+temp_data %>% mutate(Year <- as.numeric(Year)) %>% 
+  group_by(Year) %>% 
+  summarise(count = n()) %>% 
+  ggplot(aes(x = Year, y = count,  group=1)) + 
+  geom_line(stat = "identity")
+
+# fatalities per year
+temp_data %>% mutate(Year <- as.numeric(Year),
+                     Fatalities <- as.numeric(Fatalities)) %>% 
+  group_by(Year, Fatalities) %>% 
+  summarise(count = n()) %>% 
+  ggplot(aes(x = Year, y = Fatalities,  group=1)) + 
+  geom_line(stat = "identity")
+
+
+# injured per year 
+temp_data %>% mutate(Year <- as.numeric(Year),
+                     Injured <- as.numeric(Injured)) %>% 
+  group_by(Year, Injured) %>% 
+  summarise(count = n()) %>% 
+  ggplot(aes(x = Year, y = Injured,  group=1)) + 
+  geom_line(stat = "identity")
+
+#victims per year
+temp_data %>% mutate(Year <- as.numeric(Year),
+                     Total.victims <- as.numeric(Total.victims)) %>% 
+  group_by(Year, Total.victims) %>% 
+  summarise(count = n()) %>% 
+  ggplot(aes(x = Year, y = Total.victims,  group=1)) + 
+  geom_line(stat = "identity")
+
+
+temp_data %>% mutate(Year <- as.numeric(Year)) %>% 
+  group_by(Year, State) %>% 
+  summarise(count = n()) %>% 
+  ggplot(aes(x = Year, y = count,  fill = factor(State))) + 
+  geom_bar(stat = "identity", position = "fill")
+
+```
 
 This R Markdown document is made interactive using Shiny. Unlike the more traditional workflow of creating static reports, you can now create documents that allow your readers to change the assumptions underlying your analysis and see the results immediately. 
 
@@ -145,41 +215,127 @@ To learn more, see [Interactive Documents](http://rmarkdown.rstudio.com/authorin
 You can embed Shiny inputs and outputs in your document. Outputs are automatically updated whenever inputs change.  This demonstrates how a standard R plot can be made interactive by wrapping it in the Shiny `renderPlot` function. The `selectInput` and `sliderInput` functions create the input widgets used to drive the plot.
 
 ```{r eruptions, echo=FALSE}
-inputPanel(
-  selectInput("n_breaks", label = "Number of bins:",
-              choices = c(10, 20, 35, 50), selected = 20),
-  
-  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
-              min = 0.2, max = 2, value = 1, step = 0.2)
-)
+library(shiny)
+library(dplyr)
+library(ggplot2)
 
-renderPlot({
-  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
-       xlab = "Duration (minutes)", main = "Geyser eruption duration")
-  
-  dens <- density(faithful$eruptions, adjust = input$bw_adjust)
-  lines(dens, col = "blue")
-})
 ```
 
-## Embedded Application
 
-It's also possible to embed an entire Shiny application within an R Markdown document using the `shinyAppDir` function. This example embeds a Shiny application located in another directory:
 
-```{r tabsets, echo=FALSE}
-shinyAppDir(
-  system.file("examples/06_tabsets", package = "shiny"),
-  options = list(
-    width = "100%", height = 550
+
+
+
+# Define UI for app that draws a histogram ----
+```{r eruptions, echo=FALSE}
+ui <- fluidPage(
+  
+  data <- read.csv("finaldata_313.csv"),
+  
+  # App title ----
+  titlePanel("Us mass shooting"),
+  
+  # Sidebar layout with input and output definitions ----
+  sidebarLayout(
+    
+    # Sidebar panel for inputs ----
+    sidebarPanel(
+      
+      # Input: Slider for the number of bins ----
+      sliderInput(inputId = "bins",
+                  label = "Dates:",
+                  min = as.Date("1966-01-01","%Y-%m-%d"),
+                  max = as.Date("2019-12-31","%Y-%m-%d"),
+                  value=as.Date("2016-12-01"),timeFormat="%Y-%m-%d")
+    ),
+    
+
+    
+    # Main panel for displaying outputs ----
+    mainPanel(
+      
+      # Output: Histogram ----
+      plotOutput(outputId = "distPlot")
+      
+    )
   )
 )
 ```
 
-Note the use of the `height` parameter to determine how much vertical space the embedded application should occupy.
 
-You can also use the `shinyApp` function to define an application inline rather then in an external directory.
+```{r}
+shinyServer(function(input, output) {
+			output$trendPlot <- renderGraph({
+									bins <- input$bins
+									x <- temp_data$Year
+									min = as.Date("1966-01-01","%Y-%m-%d")
+                  max = as.Date("2019-12-31","%Y-%m-%d")
+									trace1 <- list(x = x,
+																 autobinx = FALSE,
+																 xbins = list(start = min,
+																							end = max,
+																							size =  ((max-min)/bins)
+																 							),
+																 type = "histogram"
+																 )
 
-In all of R code chunks above the `echo = FALSE` attribute is used. This is to prevent the R code within the chunk from rendering in the document alongside the Shiny components.
+					data <- list(trace1)
+					layout<- list(xaxis =
+												list(title = "Ratings",
+														 range = c(min, max),
+														 autorange = FALSE,
+														 autotick = FALSE,
+														 tick0 = min,
+														 dtick = ((max-min)/bins)
+												)
+										)
+
+		return(list(
+					 list(id = "trendPlot",
+								task = "newPlot",
+								data = data,
+								layout = layout
+				)
+		))
+	})
+})
+```
+
+```{r eruptions, echo=FALSE}
+
+# Define server logic required to draw a histogram ----
+server <- function(input, output) {
+  
+  # Histogram of the Old Faithful Geyser Data ----
+  # with requested number of bins
+  # This expression that generates a histogram is wrapped in a call
+  # to renderPlot to indicate that:
+  #
+  # 1. It is "reactive" and therefore should be automatically
+  #    re-executed when inputs (input$bins) change
+  # 2. Its output type is a plot
+  output$distPlot <- renderPlot({
+    
+    x    <- temp_data$Year
+    bins <- seq(min(x), max(x), length.out = input$bins + 1)
+    
+    temp_data %>% mutate(Year <- as.numeric(Year)) %>% 
+       group_by(Year) %>% 
+       summarise(count = n()) %>% 
+       ggplot(aes(x = Year, y = count,  group=1)) + 
+       geom_line(stat = "identity")
+    
+  })
+  
+}
+```
+
+```{r eruptions, echo=FALSE}
+
+shinyApp(ui, server)
+```
+
+
 
 
 
