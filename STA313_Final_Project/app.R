@@ -1,4 +1,6 @@
 library(tidyverse)
+library(shinydashboard)
+library(shinyBS)
 source("helpers.R")
 data <- read.csv("finaldata_313.csv")
 
@@ -28,10 +30,18 @@ ui <- fluidPage(
                   label = "Choose a response to display",
                   choices = c("Shootings",
                               "Fatalities", "Injuries"),
-                  selected = "Shootings")
+                  selected = "Shootings"),
       
+      # Input: Input for the states
+      selectInput("state", label = "Select which states to display:", 
+                  choices = c("All States", sort(as.character(
+                    unique(data$State)))), 
+                  selected = "All States",
+                  multiple = TRUE),
       
-      
+      bsPopover("policies", "Policy Name", 
+                placement = "bottom", 
+                trigger = "hover")
     ),
     
     
@@ -50,7 +60,7 @@ ui <- fluidPage(
 
 
 # Define server logic
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   output$timeline <- renderPlot({
     
@@ -61,11 +71,21 @@ server <- function(input, output) {
                        "Shootings" = "Shootings",
                        "Fatalities" = "Fatalities",
                        "Injuries" = "Injured")
+    
+    #takes input from state
+    if("All States" %in% input$state){
+      states <- as.character(unique(data$State))
+    } else {
+      states <- input$state
+    }
 
     
     #plots the timeline with input of the function in helpers.R
-    plot_timeline(response, input$years[1], input$years[2])
+    plot_timeline(response, input$years[1], input$years[2], states)
   })
+  
+  addPopover(session, "timeline", "Data", content = paste0("hello")
+             , trigger = 'hover')
   
 }
 

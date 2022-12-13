@@ -1,10 +1,12 @@
 data = read.csv("finaldata_313.csv")
+federal_laws = read.csv("federal_laws.csv")
 
 #when adding filters, make sure to add filter parameters here
-plot_timeline <- function(response, min = 1966, max = 2019) {
+plot_timeline <- function(response, min = 1966, max = 2019, states) {
   
   #add any additional filters here
-  temp <- data %>% filter(Year < max) %>% filter(Year > min)
+  temp <- data %>% filter(Year < max) %>% filter(Year > min) %>% 
+    filter(State %in% states)
   
   #tried to make this cleaner by passing arguments into ggplot code
   #didnt work, problems with evaluating column names so just hard coded
