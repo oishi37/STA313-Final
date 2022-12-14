@@ -16,8 +16,7 @@ plot_timeline <- function(temp, temp_laws, response) {
          x = "Year", 
          y = paste0("Number of ", response))
 
-  product <- product + points + labs(subtitle = "Click on graph to 
-                                     display policy information")
+  product <- product + points + labs(subtitle = "Click on graph to display policy information")
   
   return(product)
 }
