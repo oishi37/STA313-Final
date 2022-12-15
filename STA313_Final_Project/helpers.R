@@ -7,7 +7,7 @@ plot_timeline <- function(response, min = 1966, max = 2019) {
   temp <- data %>% filter(Year < max) %>% filter(Year > min)
  
   # Shooting Types
-   Mass <- data %>% filter(Shooting.Type = "Mass")
+  Mass <- data %>% filter(Shooting.Type = "Mass")
   Spree <- data %>% filter(Shooting.Type = "Spree")
   # Motivation
   Racial <- data %>% filter(Shooting.Type = "racism")
