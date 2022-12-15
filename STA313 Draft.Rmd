@@ -137,28 +137,19 @@ min = 1966
 response = "Fatalities"
 
 temp <- data %>% filter(Year < max) %>% filter(Year > min)
+feds <- read.csv("STA313_Final_Project/federal_laws.csv")
 
-x <- colnames(temp)
-match("Fatalities", x)
+t <- temp %>% group_by(Year) %>% summarize(n = n())
+x <- tibble(Year = c(1969:2019), count = rep(0, 51))
+y <- left_join(x, t, by = c("Year")) %>%  mutate(n = case_when(is.na(n) ~ 0, TRUE ~ as.numeric(as.character(n))))
 
+product <- temp %>% group_by(Year) %>% 
+  summarise(count = sum(Fatalities)) %>% 
+  ggplot(aes(x = Year, y = count)) + geom_line()
 
+product_laws <- geom_point(data = (temp %>% filter(Year %in% feds$Year_Implemented) %>% group_by(Year) %>% summarise(count = sum(Fatalities))), aes(x = Year, y = count))
 
-args <- list(temp$Year, temp$Fatalities)
-
-do.call(group_by, args)
-
-as.name(response)
-eval(as.name(response))
-eval(as.name(paste0("temp$", as.name(response))))
-
-product <- temp %>% group_by(Year, get(response)) %>% 
-  summarise(count = n()) %>% 
-  ggplot(aes(x = Year, y = eval(as.name(response)))) + geom_line() +
-      labs(title= paste0("Timeline of ", response, " in the US"),
-           x = "Year", 
-           y = paste0("Number of ", response)) + theme_classic()
-
-product
+product + product_laws
 ```
 
 # CODE FOR GGPLOT
