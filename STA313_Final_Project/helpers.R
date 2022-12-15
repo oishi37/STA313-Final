@@ -21,6 +21,7 @@ plot_timeline <- function(temp, temp_laws, response) {
   return(product)
 }
 
+
 create_temps <- function(states, max, min, response) {
   
   #takes input from state, lists all states if option is checked
@@ -70,3 +71,4 @@ create_temps <- function(states, max, min, response) {
   return(list(temp, temp_laws))
   
 }
+

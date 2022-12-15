@@ -186,11 +186,25 @@ temp_data %>% mutate(Year <- as.numeric(Year),
   ggplot(aes(x = Year, y = Total.victims,  group=1)) + 
   geom_line(stat = "identity")
 
-
+# Group by State
 temp_data %>% mutate(Year <- as.numeric(Year)) %>% 
   group_by(Year, State) %>% 
   summarise(count = n()) %>% 
   ggplot(aes(x = Year, y = count,  fill = factor(State))) + 
+  geom_bar(stat = "identity", position = "fill")
+
+# Group by Motivations
+temp_data %>% mutate(Year <- as.numeric(Year)) %>% 
+  group_by(Year, Cause) %>% 
+  summarise(count = n()) %>% 
+  ggplot(aes(x = Year, y = count,  fill = factor(Cause))) + 
+  geom_bar(stat = "identity", position = "fill")
+
+# Group by Shooting types
+temp_data %>% mutate(Year <- as.numeric(Year)) %>% 
+  group_by(Year, Shooting.Type) %>% 
+  summarise(count = n()) %>% 
+  ggplot(aes(x = Year, y = count,  fill = factor(Shooting.Type))) + 
   geom_bar(stat = "identity", position = "fill")
 
 ```

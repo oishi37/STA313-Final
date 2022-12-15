@@ -34,6 +34,7 @@ ui <- fluidPage(
                   choices = c("Shootings",
                               "Fatalities", "Injuries"),
                   selected = "Shootings"),
+
       
       # Input: Input for the states
       selectInput("state", label = "Select which states to display:", 
@@ -71,6 +72,7 @@ server <- function(input, output, session) {
   
   output$timeline <- renderPlot({
     
+
 
     
     #creates the filtered data based on the input, returns as a list
