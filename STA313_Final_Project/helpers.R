@@ -5,6 +5,14 @@ plot_timeline <- function(response, min = 1966, max = 2019) {
   
   #add any additional filters here
   temp <- data %>% filter(Year < max) %>% filter(Year > min)
+ 
+  # Shooting Types
+   Mass <- data %>% filter(Shooting.Type = "Mass")
+  Spree <- data %>% filter(Shooting.Type = "Spree")
+  # Motivation
+  Racial <- data %>% filter(Shooting.Type = "racism")
+  Religious <- data %>% filter(Shooting.Type = "religious radicalism")
+  Unkown <- data %>% filter(Shooting.Type = "-999")
   
   #tried to make this cleaner by passing arguments into ggplot code
   #didnt work, problems with evaluating column names so just hard coded
