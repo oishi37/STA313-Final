@@ -28,8 +28,19 @@ ui <- fluidPage(
                   label = "Choose a response to display",
                   choices = c("Shootings",
                               "Fatalities", "Injuries"),
-                  selected = "Shootings")
+                  selected = "Shootings"),
       
+      selectInput("response1", 
+                  label = "Choose a response to display",
+                  choices = c("Mass", "Spree"),
+                  selected = "Shooting Types"),
+      
+      selectInput("response2", 
+                  label = "Choose a response to display",
+                  choices = c("Racial",
+                              "Religious", "Unknown"),
+                  selected = "Motivation")
+           
       
       
     ),
@@ -61,6 +72,12 @@ server <- function(input, output) {
                        "Shootings" = "Shootings",
                        "Fatalities" = "Fatalities",
                        "Injuries" = "Injured")
+    response1 <- switch(input$response1, 
+                       "Mass" = "Mass",
+                       "Spree" = "Spree")
+    response2 <- switch(input$response2, 
+                       "Racial" = "",
+                       ")
 
     
     #plots the timeline with input of the function in helpers.R
