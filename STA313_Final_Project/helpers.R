@@ -31,8 +31,7 @@ plot_timeline <- function(temp, temp_laws, response) {
   product <- product + points + lines + theme_grey() +
     labs(subtitle = "Each point corresponds to a federal level policy. Click on a point to display the policy's 
 information.",
-         caption = "Showing US Mass Shooting data from 1969-2019, data was taken from 
-https://www.kaggle.com/datasets/myho63/us-mass-shooting-1966-2019.") +
+         caption = "Showing US Mass Shooting data from 1969-2019.") +
     theme(plot.subtitle = element_text(hjust = 0, size = 13),
           plot.title = element_text(face = "bold", hjust = 0, size = 20),
           plot.caption = element_text(face = "italic", hjust = 0, size = 12), 
@@ -44,17 +43,30 @@ https://www.kaggle.com/datasets/myho63/us-mass-shooting-1966-2019.") +
 }
 
 
-create_temps <- function(states, max, min, response) {
+create_temps <- function(states, max, min, response, type, motivation) {
   
   #takes input from state, lists all states if option is checked
   if("All States" %in% states){
     states <- as.character(unique(data$State))
+  }
+  
+  #takes input from types, lists all if option is checked
+  if(type =="All Types"){
+    type <- as.character(unique(data$Shooting.Type))
   } else {
-    states <- states
+    type <- switch(type, "Mass (Single Location)" = "Mass",
+                   "Spree (Multiple Locations)" = "Spree",
+                   "Unknown (Missing Information)" = NA)
+  }
+  
+  #takes input from motivation, lists all if option is checked
+  if(motivation =="All Motivations"){
+    motivation <- as.character(unique(data$Cause))
   }
   
   #add any additional filters here
-  temp <- data %>% filter(State %in% states) %>% group_by(Year)
+  temp <- data %>% filter(State %in% states, Shooting.Type %in% type, 
+                          Cause %in% motivation) %>% group_by(Year)
   
   #looks at laws based on the filtered data
   temp_laws <- temp %>% filter(Year %in% federal_laws$Year_Implemented) %>% 

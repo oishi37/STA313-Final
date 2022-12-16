@@ -117,6 +117,15 @@ joined_data <- left_join(kaggle_raw, mj_raw, by = c("Location", "Year", "Month",
 #create state variable
 data <- joined_data %>% mutate(State = str_trim(reassign(str_split(joined_data$Location, ", "), 2))) %>% mutate(State = change(State, "CA", "California") %>% change("NV", "Nevada") %>% change("Lousiana", "Louisiana") %>% change("San Diego", "California") %>% change("Souderton", "Pennsylvania")) %>% mutate(State = case_when(is.na(State) ~ "Washington", TRUE ~ State))
 
+#clean Cause
+data <- data %>% mutate(Cause = str_to_title(Cause)) %>% mutate(Cause = case_when(Cause == "-999" ~ "Unknown",
+                                          Cause %in% c("Breakup", "Domestic Disputer", "Domestic Dispute") ~ "Domestic",
+                                          Cause %in% c("Anger", "Fight", "Argue", "Assaulting", "Business Dispute", "Fight", "Frustration", "Neighbors Conflict", "Revenge") ~ "Anger",
+                                          Cause %in% c("Suspension", "Unemployment", "Failing Exams") ~ "Employment/School Related",
+                                          Cause %in% c("Drunk", "Fun", "Robbery") ~ "Other",
+                                          Cause %in% c("Racism", "Religious Radicalism") ~ "Religion/Race Related",
+                                          TRUE ~ Cause))
+
 #check listings
 # data %>% group_by(State) %>% summarize(n = n()) %>% arrange(State) %>% print(n = 50)
 
@@ -131,6 +140,8 @@ write.csv(data,file='STA313_Final_Project/finaldata_313.csv', row.names=FALSE)
 
 ```{r}
 class(data$Year)
+
+
 
 max = 2019
 min = 1966
