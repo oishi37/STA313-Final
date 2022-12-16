@@ -84,12 +84,21 @@ ui <- fluidPage(
                             # Input: Search by keyword
                             textInput("keyword", label = "Search by keyword:", placeholder='Start typing...'),
                             
+                            bsTooltip("keyword", "Filter for keywords in the description of the event as well as the perpetrator's mental health profile",
+                                      "right", options = list(container = "body")),
+                            
                             # Input: History of Mental Health
                             checkboxGroupInput("mhhistory", label="History of mental health issues", choices=(c("Yes"))),
+                            
+                            bsTooltip("mhhistory", "Did the shooter have previous confirmed mental health issues?",
+                                      "right", options = list(container = "body")),
                             
                             #Input: Sex
                             checkboxGroupInput("sex", label="Sex", choices=(c('Male', 'Female')), selected = c('Male', 'Female'))
                             )),
+                 
+                            bsTooltip("sex", "Sex of the perpetrator, or one of the perpetrators if more than one",
+                                      "right", options = list(container = "body")),
                  
                  
                  # Input: Input for the response type ----
