@@ -81,7 +81,14 @@ ui <- fluidPage(
                             bsTooltip("motivation", "What was the reported cause of the shooting?",
                                       "right", options = list(container = "body")),
                             
+                            # Input: Search by keyword
+                            textInput("keyword", label = "Search by keyword:", placeholder='Start typing...'),
                             
+                            # Input: History of Mental Health
+                            checkboxGroupInput("mhhistory", label="History of mental health issues", choices=(c("Yes"))),
+                            
+                            #Input: Sex
+                            checkboxGroupInput("sex", label="Sex", choices=(c('Male', 'Female')), selected = c('Male', 'Female'))
                             )),
                  
                  
@@ -154,7 +161,7 @@ server <- function(input, output, session) {
   args <- reactive({
     create_temps(input$state, input$years[2],
                  input$years[1], input$response, input$type,
-                 input$motivation)
+                 input$motivation, input$keyword, input$mhhistory, input$sex)
   })
   
   output$timeline <- renderPlot({
