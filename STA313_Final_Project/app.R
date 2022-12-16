@@ -1,7 +1,7 @@
 library(tidyverse)
 library(shiny)
 library(shinyWidgets)
-library(shinydashboard)
+library(shinyBS)
 library(ggimage)
 source("helpers.R")
 data <- read.csv("finaldata_313.csv")
@@ -9,11 +9,7 @@ federal_laws <- read.csv("federal_laws.csv")
 federal_laws <- federal_laws[-(1:4), ]
 
 ui <- fluidPage(
-  # 
-  # tags$h1("First level heading"), 
-  # tags$h2("Second level heading"), 
-  # tags$h3("Third level heading"),
-  # 
+
   # theme = bslib::bs_theme(bootswatch = "darkly"),
 
   #background
@@ -28,70 +24,124 @@ ui <- fluidPage(
   # App title ----
   titlePanel("Gun Control: Does it Actually Work?"),
   
-  # Sidebar layout with input and output definitions ----
-  sidebarLayout(
+  
+  tabsetPanel(
+    id = "main_tabset",
+    tabPanel("1. Introduction",
+             tags$h1("Why Gun Control?"),
+             tags$h2("Why should we care?"),
+             tags$h3("What is our question? *Does the new policies work?*"),
+             tags$h4("Big picture, do policies work or not?[our project’s goal is to allow users to figure this out for themselves?]"
+    )),
     
-    # Sidebar panel for inputs ----
-    sidebarPanel(
-      
-      # Input: Slider for the years of interest ----
-      sliderInput(inputId = "years",
-                  label = "Year of Interest:",
-                  min = 1960,
-                  max = 2019,
-                  value= c(1960,2019)),
-      
-      
-      # Input: Input for the response type ----
-      selectInput("response", 
-                  label = "Choose a response to display",
-                  choices = c("Shootings",
-                              "Fatalities", "Injuries"),
-                  selected = "Shootings"),
-
-      
-      # Input: Input for the states
-      selectInput("state", label = "Select which states to display:", 
-                  choices = c("All States", sort(as.character(
-                    unique(data$State)))), 
-                  selected = "All States",
-                  multiple = TRUE),
+    tabPanel("2. State Policy Exploration",
+             
+             sidebarLayout(
+               
+               sidebarPanel(
+                 
+               ),
+               
+               mainPanel(
+                 
+               )
+               
+               
+             )
+             
+             
+    ),
     
-    # Input: Input for the shooting type
-    selectInput("type", label = "Select which shooting types to display:", 
-                choices = c("All Types", "Mass (Single Location)",
-                            "Spree (Multiple Locations)", 
-                            "Unknown (Missing Information)"), 
-                selected = "All Types"),
-    
-    # Input: Input for the motivation
-    selectInput("motivation", label = "Select which causes to display:",
-                choices = c("All Motivations", sort(as.character(
-                  unique(data$Cause)))),
-                selected = "All Motivations"),
+    tabPanel("3. Federal Policy Exploration",
+             # Sidebar layout with input and output definitions ----
+             sidebarLayout(
+               
+               # Sidebar panel for inputs ----
+               sidebarPanel(
+                 
+                 tabsetPanel(
+                   id = "tabset",
+                   tabPanel("Shooting Characteristics", 
+                            # Input: Input for the shooting type
+                            selectInput("type", label = "Select which shooting types to display:", 
+                                        choices = c("All Types", "Mass (Single Location)",
+                                                    "Spree (Multiple Locations)", 
+                                                    "Unknown (Missing Information)"), 
+                                        selected = "Mass (Single Location)"),
+                            
+                            bsTooltip("type", "Shootings can be characterized as mass shootings (typically a single location) or shooting sprees (multiple locations)",
+                                      "right", options = list(container = "body")),
+                            
+                            # Input: Input for the motivation
+                            selectInput("motivation", label = "Select which causes to display:",
+                                        choices = c("All Motivations", sort(as.character(
+                                          unique(data$Cause)))),
+                                        selected = "All Motivations"),
+                            
+                            bsTooltip("motivation", "What was the reported cause of the shooting?",
+                                      "right", options = list(container = "body")),
+                            
+                            
+                            )),
+                 
+                 
+                 # Input: Input for the response type ----
+                 selectInput("response", 
+                             label = "Choose a response to display",
+                             choices = c("Shootings",
+                                         "Fatalities", "Injuries"),
+                             selected = "Shootings"),
+                 
+                 bsTooltip("response", "Select whether the response indicates the number of shootings, the number of fatalities or the number of non-fatal injuries for a given year",
+                           "right", options = list(container = "body")),
+                 
+                 
+                 # Input: Input for the states
+                 selectInput("state", label = "Select which states to display:", 
+                             choices = c("All States", sort(as.character(
+                               unique(data$State)))), 
+                             selected = "All States",
+                             multiple = TRUE),
+                 
+                 bsTooltip("state", "Click which state(s) to examine in the timeline",
+                           "right", options = list(container = "body")),
+                 
+               ),
+               
+               
+               # Main panel for displaying outputs ----
+               mainPanel(
+                 
+                 # Output: Line Graph, clicks represent points ----
+                 plotOutput(outputId = "timeline", click = "plot_click"),
+                 
+                 tags$br(),
+                 
+                 # Input: Slider for the years of interest ----
+                 wellPanel(
+                 sliderInput(inputId = "years",
+                             label = "Year of Interest:",
+                             min = 1960,
+                             max = 2019,
+                             value= c(1960,2019))
+               )
+               )
+             ),
+             
+             tags$br(),
+             fluidRow(
+               column(width = 12, verbatimTextOutput("click_info"),
+                      align = "center"
+               ),
+             )
   ),
-    
-    
-    
-    
-    # Main panel for displaying outputs ----
-    mainPanel(
-      
-      # Output: Line Graph, clicks represent points ----
-      plotOutput(outputId = "timeline", click = "plot_click")
-      )
-    ), 
   
-  tags$br(),
-  tags$p("Dataset was taken from ", tags$a("kaggle.com.", 
-         href = "https://www.kaggle.com/datasets/myho63/us-mass-shooting-1966-2019")
-         ),
-  fluidRow(
-    column(width = 12, verbatimTextOutput("click_info"),
-           align = "center"
-    )
+  tabPanel("4. Conclusions/Limitations"),
+  
+  footer = tags$p("Dataset was taken from ", tags$a("kaggle.com.", 
+                                                    href = "https://www.kaggle.com/datasets/myho63/us-mass-shooting-1966-2019")
+    ),
   )
-  
 )
 
 
@@ -100,28 +150,25 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   
+  #creates the filtered data based on the input, returns as a list
+  args <- reactive({
+    create_temps(input$state, input$years[2],
+                 input$years[1], input$response, input$type,
+                 input$motivation)
+  })
+  
   output$timeline <- renderPlot({
     
     
-    #creates the filtered data based on the input, returns as a list
-    args <- create_temps(input$state, input$years[2], 
-                         input$years[1], input$response, input$type, 
-                         input$motivation)
-    
     #plots the timeline with input of the function in helpers.R
-    plot_timeline(args[[1]], args[[2]], input$response)
+    plot_timeline(args()[[1]], args()[[2]], input$response)
   })
   
   #takes the click info and finds the point in data closest to the click
   output$click_info <- renderPrint({
-    
-    #creates the filtered data based on the input, returns as a list
-    args <- create_temps(input$state, input$years[2],
-                         input$years[1], input$response, input$type,
-                         input$motivation)
-
+  
     #nearpoints matches the click and outputs the data
-    temp_year <- nearPoints(args[[1]], input$plot_click,
+    temp_year <- nearPoints(args()[[1]], input$plot_click,
                             xvar = "Year", yvar = "count")
     
     #this code grabs the corresponding data and outputs it

@@ -29,9 +29,8 @@ plot_timeline <- function(temp, temp_laws, response) {
   
 
   product <- product + points + lines + theme_grey() +
-    labs(subtitle = "Each point corresponds to a federal level policy. Click on a point to display the policy's 
-information.",
-         caption = "Showing US Mass Shooting data from 1969-2019.") +
+    labs(subtitle = "Each point corresponds to a federal level policy. Click on a point to display the policy's information.",
+         caption = "Our dataset includes a non-comprehensive list of US Mass Shootings from 1969-2019.") +
     theme(plot.subtitle = element_text(hjust = 0, size = 13),
           plot.title = element_text(face = "bold", hjust = 0, size = 20),
           plot.caption = element_text(face = "italic", hjust = 0, size = 12), 
