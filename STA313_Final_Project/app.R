@@ -100,6 +100,12 @@ ui <- fluidPage(
                             bsTooltip("sex", "Sex of the perpetrator, or one of the perpetrators if more than one",
                                       "right", options = list(container = "body")),
                  
+                            #Input: Weapon
+                            checkboxGroupInput("weapon", label="Weapons Used", choiceNames=(c('Semiautomatic and Assault Rifle','Handgun', 'Shotgun')), choiceValues = (c('rifle', 'handgun', 'shotgun')),),
+             
+                            bsTooltip("weapon", "Type of weapons used by the perpetrator(s)",
+                                      "right", options = list(container = "body")),
+                 
                  
                  # Input: Input for the response type ----
                  selectInput("response", 
@@ -170,7 +176,7 @@ server <- function(input, output, session) {
   args <- reactive({
     create_temps(input$state, input$years[2],
                  input$years[1], input$response, input$type,
-                 input$motivation, input$keyword, input$mhhistory, input$sex)
+                 input$motivation, input$keyword, input$mhhistory, input$sex, input$weapon)
   })
   
   output$timeline <- renderPlot({

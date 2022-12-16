@@ -42,7 +42,7 @@ plot_timeline <- function(temp, temp_laws, response) {
 }
 
 
-create_temps <- function(states, max, min, response, type, motivation, keyword, mhhistory, sex) {
+create_temps <- function(states, max, min, response, type, motivation, keyword, mhhistory, sex, weapon) {
   
   #takes input from state, lists all states if option is checked
   if("All States" %in% states){
@@ -65,12 +65,16 @@ create_temps <- function(states, max, min, response, type, motivation, keyword, 
   if(is.null(mhhistory)){
     mhhistory <- as.character(unique(data$Prior.MH))
   }
+  if(is.null(weapon)){
+    weapon <- as.character(unique(data$Weapon.Type))
+  }
   
   #add any additional filters here
   temp <- data %>% filter(State %in% states, Shooting.Type %in% type, 
                           Cause %in% motivation, str_detect(str_to_lower(Summary),str_to_lower(keyword)) | str_detect(str_to_lower(MH.Details),str_to_lower(keyword)), 
                           Prior.MH %in% mhhistory,
-                          Gender %in% sex) %>% group_by(Year)
+                          Gender %in% sex,
+                          Weapon.Type %in% weapon) %>% group_by(Year)
   
   #looks at laws based on the filtered data
   temp_laws <- temp %>% filter(Year %in% federal_laws$Year_Implemented) %>% 
