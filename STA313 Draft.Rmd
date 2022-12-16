@@ -147,9 +147,9 @@ product <- temp %>% group_by(Year) %>%
   summarise(count = sum(Fatalities)) %>% 
   ggplot(aes(x = Year, y = count)) + geom_line()
 
-product_laws <- geom_point(data = (temp %>% filter(Year %in% feds$Year_Implemented) %>% group_by(Year) %>% summarise(count = sum(Fatalities))), aes(x = Year, y = count))
+product_laws <- geom_point(data = (temp %>% filter(Year %in% feds$Year_Implemented) %>% group_by(Year) %>% summarise(count = sum(Fatalities))), aes(x = Year, y = count)) 
 
-product + product_laws
+product + product_laws + geom_image(aes(image = "policy.png"))
 ```
 
 # CODE FOR GGPLOT

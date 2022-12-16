@@ -7,17 +7,39 @@ plot_timeline <- function(temp, temp_laws, response) {
   
   
   #get y values for law points
-  points <- geom_point(data = temp_laws, aes(x = Year, y = count))
+  points <- geom_point(data = temp_laws, aes(x = Year, y = count),
+                       color = "red", size = 3)
+  
+  #add in vertical lines
+  lines <- geom_vline(xintercept = temp_laws$Year, color = "red", linetype =
+                        "dashed", linewidth = 0.5)
+  
+  # #add the images in, little messy?
+  # images <- geom_image(data = temp_laws, aes(x = Year, 
+  #                                            y = count, image = "policy.png"), 
+  #                      size = .075)
   
   #create graph
   product <- temp %>% 
-    ggplot(aes(x = Year, y = count)) + geom_line() +
+    ggplot(aes(x = Year, y = count)) + geom_line(linewidth = 1) +
+    
     labs(title= paste0("Timeline of ", response, " in the US"),
          x = "Year", 
          y = paste0("Number of ", response))
-
-  product <- product + points + labs(subtitle = "Click on graph to display policy information")
   
+
+  product <- product + points + lines + theme_grey() +
+    labs(subtitle = "Each point corresponds to a federal level policy. Click on a point to display the policy's 
+information.",
+         caption = "Showing US Mass Shooting data from 1969-2019, data was taken from 
+https://www.kaggle.com/datasets/myho63/us-mass-shooting-1966-2019.") +
+    theme(plot.subtitle = element_text(hjust = 0, size = 13),
+          plot.title = element_text(face = "bold", hjust = 0, size = 20),
+          plot.caption = element_text(face = "italic", hjust = 0, size = 12), 
+          axis.title = element_text(face = "bold", size=12),
+          axis.text = element_text(size=12))
+    
+
   return(product)
 }
 

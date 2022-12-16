@@ -1,7 +1,7 @@
 library(tidyverse)
-library(knitr)
-library(shinydashboard)
-library(shinyBS)
+library(shiny)
+library(shinyWidgets)
+library(ggimage)
 source("helpers.R")
 data <- read.csv("finaldata_313.csv")
 federal_laws <- read.csv("federal_laws.csv")
@@ -9,10 +9,19 @@ federal_laws <- federal_laws[-(1:4), ]
 
 ui <- fluidPage(
   
-  theme = bslib::bs_theme(bootswatch = "darkly"),
-  
+  # theme = bslib::bs_theme(bootswatch = "darkly"),
+
+  #background
+  fluidRow(
+    #tags$head(tags$style(type="text/css",
+     #                           "label{ display: table-cell; text-align: center; vertical-align: middle; } .form-group { display: table-row;}")),
+     #      tags$h2(""),
+           setBackgroundImage(
+      src = "https://st2.depositphotos.com/1031914/10245/i/950/depositphotos_102458582-stock-photo-faded-vintage-paper-with-red.jpg")),
+
+
   # App title ----
-  titlePanel("US Mass Shootings"),
+  titlePanel("Gun Control: Does it Actually Work?"),
   
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
@@ -61,7 +70,7 @@ ui <- fluidPage(
            verbatimTextOutput("click_info")
     )
   )
-      
+  
 )
 
 
