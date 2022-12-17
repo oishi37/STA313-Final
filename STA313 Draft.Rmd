@@ -126,6 +126,17 @@ data <- data %>% mutate(Cause = str_to_title(Cause)) %>% mutate(Cause = case_whe
                                           Cause %in% c("Racism", "Religious Radicalism") ~ "Religion/Race Related",
                                           TRUE ~ Cause))
 
+
+
+#clean weapon types
+
+# data <- data %>% mutate(Handgun = grepl("handgun", str_to_lower(Weapon.Type)) | grepl("pistol", str_to_lower(Weapon.Type)) | grepl("revolver", str_to_lower(Weapon.Type)), Rifle = grepl("rifle", str_to_lower(Weapon.Type)), Shotgun = grepl("shotgun", str_to_lower(Weapon.Type)))
+
+data <- data %>% mutate(Weapon.Type = case_when(
+  is.na(Weapon.Type) ~ "Unknown",
+  TRUE ~ Weapon.Type
+))
+
 #check listings
 # data %>% group_by(State) %>% summarize(n = n()) %>% arrange(State) %>% print(n = 50)
 
@@ -160,7 +171,7 @@ product <- temp %>% group_by(Year) %>%
 
 product_laws <- geom_point(data = (temp %>% filter(Year %in% feds$Year_Implemented) %>% group_by(Year) %>% summarise(count = sum(Fatalities))), aes(x = Year, y = count)) 
 
-product + product_laws + geom_image(aes(image = "policy.png"))
+product + product_laws + geom_label()
 ```
 
 # CODE FOR GGPLOT

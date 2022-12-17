@@ -22,11 +22,9 @@ plot_timeline <- function(temp, temp_laws, response) {
   #create graph
   product <- temp %>% 
     ggplot(aes(x = Year, y = count)) + geom_line(linewidth = 1) +
-    
     labs(title= paste0("Timeline of ", response, " in the US"),
          x = "Year", 
          y = paste0("Number of ", response))
-  
 
   product <- product + points + lines + theme_grey() +
     labs(subtitle = "Each point corresponds to a federal level policy. Click on a point to display the policy's information.",
@@ -36,13 +34,20 @@ plot_timeline <- function(temp, temp_laws, response) {
           plot.caption = element_text(face = "italic", hjust = 0, size = 12), 
           axis.title = element_text(face = "bold", size=12),
           axis.text = element_text(size=12))
-    
+  
+  if(sum(temp$count) == 0){
+    product <- product + geom_label(
+      label = "No data points found based on filters.", 
+      aes(x = mean(c(min(Year), max(Year))), y = 0), size = 5)
+  }
+  
 
   return(product)
 }
 
 
-create_temps <- function(states, max, min, response, type, motivation) {
+create_temps <- function(states, max, min, response, type, motivation, 
+                         keyword, mhhistory, sex, weapon) {
   
   #takes input from state, lists all states if option is checked
   if("All States" %in% states){
@@ -62,10 +67,27 @@ create_temps <- function(states, max, min, response, type, motivation) {
   if(motivation =="All Motivations"){
     motivation <- as.character(unique(data$Cause))
   }
-  
+  if(is.null(mhhistory)){
+    mhhistory <- as.character(unique(data$Prior.MH))
+  }
+  if(length(weapon) > 1){
+    weapon <- paste0(weapon, collapse = "|")
+  } else if(is.null(weapon)){
+    weapon <- "NULL"
+  }
+
   #add any additional filters here
   temp <- data %>% filter(State %in% states, Shooting.Type %in% type, 
-                          Cause %in% motivation) %>% group_by(Year)
+                          Cause %in% motivation, 
+                          grepl(weapon, str_to_lower(Weapon.Type)),
+                          str_detect(str_to_lower(Summary),
+                                     str_to_lower(keyword)) | str_detect(str_to_lower(MH.Details),str_to_lower(keyword)),
+                          Prior.MH %in% mhhistory,
+                          Gender %in% sex) %>%
+    group_by(Year)
+  
+
+
   
   #looks at laws based on the filtered data
   temp_laws <- temp %>% filter(Year %in% federal_laws$Year_Implemented) %>% 

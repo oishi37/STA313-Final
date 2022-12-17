@@ -59,32 +59,6 @@ ui <- fluidPage(
                # Sidebar panel for inputs ----
                sidebarPanel(
                  
-                 tabsetPanel(
-                   id = "tabset",
-                   tabPanel("Shooting Characteristics", 
-                            # Input: Input for the shooting type
-                            selectInput("type", label = "Select which shooting types to display:", 
-                                        choices = c("All Types", "Mass (Single Location)",
-                                                    "Spree (Multiple Locations)", 
-                                                    "Unknown (Missing Information)"), 
-                                        selected = "Mass (Single Location)"),
-                            
-                            bsTooltip("type", "Shootings can be characterized as mass shootings (typically a single location) or shooting sprees (multiple locations)",
-                                      "right", options = list(container = "body")),
-                            
-                            # Input: Input for the motivation
-                            selectInput("motivation", label = "Select which causes to display:",
-                                        choices = c("All Motivations", sort(as.character(
-                                          unique(data$Cause)))),
-                                        selected = "All Motivations"),
-                            
-                            bsTooltip("motivation", "What was the reported cause of the shooting?",
-                                      "right", options = list(container = "body")),
-                            
-                            
-                            )),
-                 
-                 
                  # Input: Input for the response type ----
                  selectInput("response", 
                              label = "Choose a response to display",
@@ -95,17 +69,69 @@ ui <- fluidPage(
                  bsTooltip("response", "Select whether the response indicates the number of shootings, the number of fatalities or the number of non-fatal injuries for a given year",
                            "right", options = list(container = "body")),
                  
-                 
-                 # Input: Input for the states
-                 selectInput("state", label = "Select which states to display:", 
-                             choices = c("All States", sort(as.character(
-                               unique(data$State)))), 
-                             selected = "All States",
-                             multiple = TRUE),
-                 
-                 bsTooltip("state", "Click which state(s) to examine in the timeline",
-                           "right", options = list(container = "body")),
-                 
+                 tabsetPanel(
+                   id = "tabset",
+                   tabPanel("Shooting Filters", 
+                            # Input: Input for the shooting type
+                            selectInput("type", label = "Select which shooting types to display:", 
+                                        choices = c("All Types", "Mass (Single Location)",
+                                                    "Spree (Multiple Locations)", 
+                                                    "Unknown (Missing Information)"), 
+                                        selected = "All Types"),
+                            
+                            bsTooltip("type", "Shootings can be characterized as mass shootings (typically a single location) or shooting sprees (multiple locations)",
+                                      "right", options = list(container = "body")),
+                            
+                            # Input: Search by keyword
+                            textInput("keyword", label = "Search by keyword:", placeholder='Start typing...'),
+                            
+                            bsTooltip("keyword", "Filter for keywords in the description of the event as well as the perpetrator's mental health profile",
+                                      "right", options = list(container = "body")),
+                            
+                            # Input: Input for the states
+                            selectInput("state", label = "Select which states to display:", 
+                                        choices = c("All States", sort(as.character(
+                                          unique(data$State)))), 
+                                        selected = "All States",
+                                        multiple = TRUE),
+                            
+                            bsTooltip("state", "Click which state(s) to examine in the timeline",
+                                      "right", options = list(container = "body")),
+                            ),
+                   
+                   tabPanel("Perpetrator Filters",
+                            # Input: Input for the motivation
+                            selectInput("motivation", label = "Select which causes to display:",
+                                        choices = c("All Motivations", sort(as.character(
+                                          unique(data$Cause)))),
+                                        selected = "All Motivations"),
+                            
+                            bsTooltip("motivation", "What was the reported cause of the shooting?",
+                                      "right", options = list(container = "body")),
+                            
+                            #Input: Weapon
+                            checkboxGroupInput("weapon", label="Weapons Used", 
+                                               choiceNames =c('Rifle','Handgun', 
+                                                              'Shotgun',
+                                                              'Unknown (Missing Data)'),
+                                               choiceValues = c("rifle", "handgun|pistol|revolver", "shotgun", "unknown"),
+                                               selected = c("rifle", "handgun|pistol|revolver", "shotgun", "unknown")),
+                            
+                            bsTooltip("weapon", "Type of weapon(s) used by the shooter. Note that some shooters used multiple kinds of weapons.",
+                                      "right", options = list(container = "body")),
+                            
+                            # Input: History of Mental Health
+                            checkboxGroupInput("mhhistory", label="History of mental health issues", choices=(c("Yes"))),
+                            
+                            bsTooltip("mhhistory", "Did the shooter have previous confirmed mental health issues?",
+                                      "right", options = list(container = "body")),
+                            
+                            #Input: Sex
+                            checkboxGroupInput("sex", label="Sex", choices=(c('Male', 'Female')), selected = c('Male', 'Female')),
+                            
+                            bsTooltip("sex", "Sex of the perpetrator, or one of the perpetrators if more than one",
+                                      "right", options = list(container = "body")))
+                   ),
                ),
                
                
@@ -154,7 +180,8 @@ server <- function(input, output, session) {
   args <- reactive({
     create_temps(input$state, input$years[2],
                  input$years[1], input$response, input$type,
-                 input$motivation)
+                 input$motivation, input$keyword, input$mhhistory, 
+                 input$sex, input$weapon)
   })
   
   output$timeline <- renderPlot({
