@@ -128,3 +128,94 @@ create_temps <- function(states, max, min, response, type, motivation,
   
 }
 
+
+#create state args
+
+create_statelist <- function(min, max, bc, cc, sd, ca){
+  
+  
+  statelist <- policies %>% filter(Year > min, Year < max) %>% 
+    mutate(X1 = str_split(X1, "\n"), X2 = str_split(X2, "\n"), 
+           X3 = str_split(X3, "\n"), X4 = str_split(X4, "\n"))
+  
+  final_list <- list()
+  
+  types <- c("background check", "concealed weapon", "self defense",
+             "child access")
+  columns <- list(bc, cc, sd, ca)
+  
+  
+  for(index in 1:length(types)){
+  
+  templist <- statelist %>% filter(Type == types[index])
+    
+  semi_final <- list() #semi_final list for each year
+  
+  for(year in 1:nrow(templist)){ #for each year entry
+    
+    if(!is.null(columns[[index]])){
+    working <- templist %>% select(all_of(columns[[index]])) #filter only relevant columns
+    tlist <- list() #new intersect for this year
+    for(column in 1:length(columns[[index]])){
+      tlist[[length(tlist) + 1]] <- working[,column][[1]] #add every list from this year for these columns
+    }
+    }
+    semi_final[[length(semi_final) + 1]] <- Reduce(intersect, tlist) #add intersect between all this years columns
+  }
+  
+  final_list[[length(final_list) + 1]] <- Reduce(intersect, semi_final) #add intersect between all this years columns
+  
+  
+  }
+  
+  product <- Reduce(intersect, final_list)
+  
+  if(is_empty(product)){
+    return(as.character(unique(data$State)))
+  } else{
+    return(product)
+  }
+  
+}
+
+
+plot_states <- function(min, max, states){
+  
+  intemp <- data %>% filter(Year > min, Year < max, State %in% states) %>% 
+    group_by(Year) %>% summarize(count = n())
+  
+  outtemp <- data %>% filter(Year > min, Year < max, !(State %in% states)) %>% 
+    group_by(Year) %>% summarize(count = n())
+  
+  
+  product <- ggplot() + geom_line(data = intemp, aes(x = Year, y = count, color = "Implemented"), 
+                                           linewidth = 1) + 
+    geom_line(data = outtemp, aes(x = Year, y = count, color = "Not Implemented"), linewidth = 1) +
+    labs(title= paste0("Timeline of Shootings in the US"),
+         x = "Year", 
+         y = paste("Number of Shootings"))
+  
+  product <- product + theme_grey() +
+    labs(subtitle = "Comparison between the effectiveness of different states policies",
+      caption = "Our dataset includes a non-comprehensive list of US Mass Shootings from 1969-2019.") +
+    theme(plot.subtitle = element_text(hjust = 0, size = 13),
+          plot.title = element_text(face = "bold", hjust = 0, size = 20),
+          plot.caption = element_text(face = "italic", hjust = 0, size = 12), 
+          axis.title = element_text(face = "bold", size=12),
+          axis.text = element_text(size=12)) + 
+    scale_colour_manual("States Legend", 
+                        breaks = c("Implemented", "Not Implemented"), 
+                        values = c("#EDC951", "#EB6841"))
+
+  return(product)
+  
+}
+
+get_states <- function(min, max, states){
+  intemp <- data %>% filter(Year > min, Year < max, State %in% states)
+  
+  outtemp <- data %>% filter(Year > min, Year < max, !(State %in% states))
+  
+  return(list(unique(intemp$State), unique(outtemp$State)))
+}
+

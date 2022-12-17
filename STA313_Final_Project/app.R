@@ -45,21 +45,80 @@ ui <- fluidPage(
                              label = "Year of Interest:",
                              min = 1960,
                              max = 2019,
-                             value= c(1960,2019)),
+                             value= c(1980,2019)),
                  
                  tabsetPanel(
-                   tabPanel("Background Checks"),
-                   tabPanel("Carrying a Concealed Weapon")
-                 )
+                   tabPanel("Background Checks",
+                            checkboxGroupInput("bc",
+                                               label = "Level of background checks:",
+                                               choiceNames = c("Dealers Only",
+                                                               "Private Sale", "Permit to Purchase"),
+                                               choiceValues = c("X2", 
+                                                                "X3", "X4"),
+                                               selected = c("X2")
+                                               )),
+                   
+                   bsTooltip("bc", "Background checks can be required for state-wide, private sales or when purchasing.",
+                             "right", options = list(container = "body")),
+                   
+                   tabPanel("Concealed Carry",
+                            checkboxGroupInput("cc",
+                                               label = "Concealed carry permit requirements:",
+                                               choiceNames = c("Not Required", 
+                                                               "Shall Issue", 
+                                                               "May Issue", 
+                                                               "Prohibited"),
+                                               choiceValues = c("X1", "X2", 
+                                                                "X3", "X4"),
+                                               )),
+                   
+                   bsTooltip("cc", "Weapon carrying can be completely unregulated, for non-prohibited personnel, up to the discretion of the state or only for officers.",
+                             "right", options = list(container = "body")),
+                   
+                   tabPanel("Self Defense",
+                            checkboxGroupInput("sd",
+                                               label = "Self defense legislation:",
+                                               choiceNames = c("Castle Doctrine", 
+                                                               "Expanded 1", 
+                                                               "Expanded 2", 
+                                                               "Stand your ground"),
+                                               choiceValues = c("X1", "X2", 
+                                                                "X3", "X4"),
+                                               )),
+                   
+                   
+                   bsTooltip("sd", "Individuals can act in self defence if they are in their home, in their home/work/car, beyond their work/home/car or regardless of where they are.",
+                             "right", options = list(container = "body")),
+                   
+                   tabPanel("Child Access",
+                            checkboxGroupInput("ca",
+                                               label = "Child access legislation",
+                                               choiceNames = c("Reckless Provision", 
+                                                               "Negligent Storage"),
+                                               choiceValues = c("X1", "X2")),
+                   
+                   
+                   bsTooltip("ca", "States can either charge adults for providing handguns to children, or for leaving their handguns in an accessible environment.",
+                             "right", options = list(container = "body")))
                  
+                 
+               )
+               
                ),
                
                mainPanel(
                  
-               )
+                  plotOutput(outputId = "state_timeline"),
+                  
+                 
+               )),
+               
+               wellPanel(verbatimTextOutput("state_lists"),
+                        align = "center"
+                 )
                
                
-             )
+             
              
              
     ),
@@ -196,6 +255,12 @@ server <- function(input, output, session) {
                  input$sex, input$weapon)
   })
   
+  #creates the filtered data based on the state input
+  state_args <- reactive({
+    create_statelist(input$stateyears[1], input$stateyears[2],
+                     input$bc, input$cc, input$sd, input$ca)
+  })
+  
   output$timeline <- renderPlot({
     
     
@@ -215,8 +280,18 @@ server <- function(input, output, session) {
     cat(paste0(law$Name, " [", law$Year_Implemented, "]\n", law$Description))
     
   })
-
   
+  
+  output$state_timeline <- renderPlot({
+    
+    plot_states(input$stateyears[1], input$stateyears[2], state_args())
+  })
+
+  output$state_lists <- renderPrint({
+    s <- get_states(input$stateyears[1], input$stateyears[2], state_args())
+    
+    cat("Implemented States \n", s[[1]], "\n\nNot Implemented States\n", s[[2]])
+  })
   
 }
 
