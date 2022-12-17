@@ -172,7 +172,37 @@ product <- temp %>% group_by(Year) %>%
 product_laws <- geom_point(data = (temp %>% filter(Year %in% feds$Year_Implemented) %>% group_by(Year) %>% summarise(count = sum(Fatalities))), aes(x = Year, y = count)) 
 
 product + product_laws + geom_label()
+
+
 ```
+
+```{r}
+policies <- read.csv("../policies.csv")
+
+p <- policies%>% filter(Year < 1981, Type == "background check") %>% mutate(X1 = str_split(X1, "\n"), X2 = str_split(X2, "\n"), X3 = str_split(X3, "\n"), X4 = str_split(X4, "\n"))
+
+
+final_list <- list()
+bc <- c("X2")
+
+for(i in nrow(p)){
+  p2 <- p %>% select(all_of(bc))
+  tlist <- list()
+    for(j in 1:length(bc)){
+      tlist[[length(tlist) + 1]] <- p2[,j][[1]]
+    }
+  final_list[[length(final_list) + 1]] <- Reduce(intersect, tlist)
+}
+
+Reduce(intersect, final_list)
+
+df1 <- 
+
+ggplot() + geom_line(aes(x = 1:10, y = 1:10)) + geom_line(aes(x = 1:10, y = -1:-10))
+
+
+```
+
 
 # CODE FOR GGPLOT
 ```{r}
