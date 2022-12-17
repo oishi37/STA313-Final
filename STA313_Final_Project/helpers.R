@@ -1,6 +1,7 @@
 data = read.csv("finaldata_313.csv")
 federal_laws = read.csv("federal_laws.csv")
 federal_laws <- federal_laws[-(1:4), ]
+policies <- read.csv("policies.csv")
 
 #when adding filters, make sure to add filter parameters here
 plot_timeline <- function(temp, temp_laws, response) {

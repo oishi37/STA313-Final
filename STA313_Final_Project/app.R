@@ -7,6 +7,7 @@ source("helpers.R")
 data <- read.csv("finaldata_313.csv")
 federal_laws <- read.csv("federal_laws.csv")
 federal_laws <- federal_laws[-(1:4), ]
+policies <- read.csv("policies.csv")
 
 ui <- fluidPage(
 
@@ -39,6 +40,17 @@ ui <- fluidPage(
              sidebarLayout(
                
                sidebarPanel(
+                 #state years
+                 sliderInput(inputId = "stateyears",
+                             label = "Year of Interest:",
+                             min = 1960,
+                             max = 2019,
+                             value= c(1960,2019)),
+                 
+                 tabsetPanel(
+                   tabPanel("Background Checks"),
+                   tabPanel("Carrying a Concealed Weapon")
+                 )
                  
                ),
                

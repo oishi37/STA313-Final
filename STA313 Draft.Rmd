@@ -172,7 +172,16 @@ product <- temp %>% group_by(Year) %>%
 product_laws <- geom_point(data = (temp %>% filter(Year %in% feds$Year_Implemented) %>% group_by(Year) %>% summarise(count = sum(Fatalities))), aes(x = Year, y = count)) 
 
 product + product_laws + geom_label()
+
+
 ```
+
+```{r}
+policies <- read.csv("../policies.csv")
+
+policies %>% group_by(Year, Type) %>% filter(Year == 1984, Type == "background check")
+```
+
 
 # CODE FOR GGPLOT
 ```{r}
