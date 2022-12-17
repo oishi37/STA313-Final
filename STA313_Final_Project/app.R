@@ -28,14 +28,41 @@ ui <- fluidPage(
   
   tabsetPanel(
     id = "main_tabset",
-    tabPanel("1. Introduction",
-             tags$h1("Why Gun Control?"),
-             tags$h2("Why should we care?"),
-             tags$h3("What is our question? *Does the new policies work?*"),
-             tags$h4("Big picture, do policies work or not?[our project’s goal is to allow users to figure this out for themselves?]"
-    )),
+    tabPanel("1. INTRODUCTION",
+             
+             tags$br(),
+             
+             wellPanel(
+             tags$h1("Why Should We Care About Gun Control?"),
+             strong("This evidence-based graph from Small Arms Survey (Figure 1.0), shows us that for every 100 US residents, there are 120.5 guns in possession. This ratio significantly surpasses any other country in the world. \n Furthermore, in the last decade, there has been a spike in violent acts regarding mass shootings, thus, it is valuable to address the concerns about gun control and increase understanding about it.")),
+             
+             fluidRow(
+               
+               
+               column(width = 6,
+                      wellPanel(tags$h1("Does Gun Control Save Lives? "),
+                      strong("In light of these violent acts, US governments have attempted to proactively take action to propose new policies to mitigate the number of mass shootings. Over the decades there have been federal acts and bans put in place, as well as policies implemented by state. However, has the introduction of these legislations been effective?"),
+                      
+                      tags$br(),
+                      tags$br(),
+                      
+                      strong("Our data-driven article aims to provide users with all the information and data they need to explore how different US policies affect uniquely categorized mass shootings. It is intended that users analyze and understand if these government legislations are doing an effective job of mitigating mass shooting incidents in the US."))),
+               
+               column(width = 6, 
+                    tags$figure(align = "center",
+                                tags$img(
+                                  src = "https://thequakercampus.org/wp-content/uploads/2021/04/small-arms-survey.png",
+                                  width = 500,
+                                  align = "center")),
+                    tags$p("Figure 1.0: Adapted from", tags$a("BBC.com.", 
+                                                                      href = "https://www.bbc.com/news/world-us-canada-41488081"))
+                                    
+             
+             
+             )
+             )),
     
-    tabPanel("2. State Policy Exploration",
+    tabPanel("2. STATE POLICY EXPLORATION",
              
              sidebarLayout(
                
@@ -123,7 +150,7 @@ ui <- fluidPage(
              
     ),
     
-    tabPanel("3. Federal Policy Exploration",
+    tabPanel("3. FEDERAL POLICY EXPLORATION",
              # Sidebar layout with input and output definitions ----
              sidebarLayout(
                
@@ -233,7 +260,18 @@ ui <- fluidPage(
              )
   ),
   
-  tabPanel("4. Conclusions/Limitations"),
+  tabPanel("4. CONCLUSION",
+           
+           wellPanel(
+             tags$h3("Concluding Remarks"),
+             strong("We see that US gun legislations have a long way to go before they are deemed effective. Many legislations were seen to produce drastic spikes in mass shootings while others provided relief for a limited amount of time.")
+             ),
+             
+             wellPanel(
+               tags$h3("Limitations"),
+               strong("The visualization does not weigh the number of deaths/victims by the population of the state. When the visualization is accounted for by all the states on a federal level, it is not an issue. However, when we see the data in terms of the states, the number of deaths/victims does not account for the population of the state. It might be the case that a state has a large number of deaths because it has a larger population.")
+           
+           )),
   
   footer = tags$p("Dataset was taken from ", tags$a("kaggle.com.", 
                                                     href = "https://www.kaggle.com/datasets/myho63/us-mass-shooting-1966-2019")
