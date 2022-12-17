@@ -5,9 +5,9 @@ account: ericyin23
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 7906620
-bundleId: 6645739
+bundleId: 6646632
 url: https://ericyin23.shinyapps.io/STA313_Final_Project/
-when: 1671218612.68071
-lastSyncTime: 1671218612.68072
+when: 1671237756.6969
+lastSyncTime: 1671237756.69691
 asMultiple: FALSE
 asStatic: FALSE
